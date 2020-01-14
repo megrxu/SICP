@@ -42,7 +42,7 @@
       guess
       (new-sqrt-iter (improve guess x) x)))
 
-;;(new-sqrt-iter 1.0 1) ;; hault 正则序和应用序的问题
+;;(new-sqrt-iter 1.0 1) ;; halt 正则序和应用序的问题
 
 ;; 1.7
 (sqrt 0.000001)
@@ -141,6 +141,39 @@
 
 (fast-fib 1e100) ;; very fast
 
+;; 1.21
+
+(define (smallest-divisor n)
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (+ test-divisor 1)))))
+  (define (divides? a b)
+    (zero? (remainder b a)))
+  (find-divisor n 2))
+
+(smallest-divisor 199)
+(smallest-divisor 1999)
+(smallest-divisor 19999)
+
+;; 1.22
+
+(define (prime-naive? n)
+  (equal? n (smallest-divisor n)))
+
+(define (timed-prime-test n prime?)
+  (let ((start (current-milliseconds)))
+    (if (prime? n)
+      (- (current-milliseconds) start)
+      0
+      )))
+
+
+(timed-prime-test 10001 prime-naive?)
+(timed-prime-test 100 prime-naive?)
+
+(map (lambda n ((timed-prime-test (car n) prime-naive?))) (range 1 100))
+
 ;; 1.29 pre
 
 (define (sum term a next b)
@@ -161,3 +194,4 @@
     (+ x 4))
   (sum pi-term a pi-next b))
 (* 8 (pi-sum 1 10000))
+
