@@ -161,18 +161,52 @@
 (define (prime-naive? n)
   (equal? n (smallest-divisor n)))
 
-(define (timed-prime-test n prime?)
-  (let ((start (current-milliseconds)))
+(define (test-prime n prime?)
+  (let [(start (current-milliseconds))]
     (if (prime? n)
-      (- (current-milliseconds) start)
-      0
-      )))
+        (cons n (- (current-milliseconds) start))
+        (test-prime (+ 2 n) prime?))))
 
+(test-prime (+ 1000000000 1) prime-naive?)
 
-(timed-prime-test 10001 prime-naive?)
-(timed-prime-test 100 prime-naive?)
+(define (expmod base exp m)
+  (cond ((= exp 0) 1)
+        ((even? exp)
+          (remainder (square (expmod base (quotient exp 2) m)) m))
+        (else
+         (remainder (* base (expmod base (- exp 1) m)) m))))
 
-(map (lambda n ((timed-prime-test (car n) prime-naive?))) (range 1 100))
+(define (fermat-test n)
+  (define (try-it a)
+    (= (expmod a n n) a))
+  (try-it (+ 1 (random (- n 1)))))
+
+(define (fast-prime? n times)
+  (cond ((= times 0) true)
+        ((fermat-test n) (fast-prime? n (- times 1)))
+        (else false)))
+
+(define (prime-fast? n)
+  (fast-prime? n 1))
+
+(test-prime (+ 1000000000 1) prime-fast?)
+
+;; 1.23
+
+(define (next-divisor n)
+  (cond ((= n 2) 3)
+        (else (+ 2 n))))
+(define (smallest-divisor* n)
+  (define (find-divisor n test-divisor)
+    (cond ((> (square test-divisor) n) n)
+          ((divides? test-divisor n) test-divisor)
+          (else (find-divisor n (next-divisor test-divisor)))))
+  (define (divides? a b)
+    (zero? (remainder b a)))
+  (find-divisor n 2))
+(define (prime-naive*? n)
+  (= n (smallest-divisor* n)))
+(test-prime (+ 1000000000 1) prime-naive*?)
 
 ;; 1.29 pre
 
@@ -195,3 +229,30 @@
   (sum pi-term a pi-next b))
 (* 8 (pi-sum 1 10000))
 
+(define (cube x)
+  (* x x x))
+
+(define (integral f a b dx)
+  (define (add-dx x)
+    (+ x dx))
+  (* (sum f (+ a (/ dx 2.0)) add-dx b) dx))
+
+(integral cube 0 1 0.01)
+(integral cube 0 1 0.001)
+
+;; 1.29
+
+(define (integral-simpson f a b n)
+  (let ((h (/ (- b a) n)))
+    (define (y k)
+      (f (+ a (* h k))))
+    (define (f* k)
+      (cond ((= 0 k) (y k))
+            ((= n k) (y k))
+            ((even? k) (* 2 (y k)))
+            (else (* 4 (y k)))))
+    (* (/ h 3)
+       (sum f* 0 inc n))))
+
+(integral-simpson cube 0 1 100)
+(integral-simpson square 0 1 1000)
