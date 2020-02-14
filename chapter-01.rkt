@@ -256,3 +256,68 @@
 
 (integral-simpson cube 0 1 100)
 (integral-simpson square 0 1 1000)
+
+;; 1.30
+
+(define (sum-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ (term a) result))))
+  (iter a 0))
+
+(define (id x) x)
+(sum-iter id 1 inc 10)
+
+;; 1.31
+
+(define (product term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (* (term a) result))))
+  (iter a 1))
+
+(define (fact n)
+  (product id 1 inc n))
+(fact 0) ;; 0! = 1
+(fact 5) ;; 5! = 120
+
+(define (get-pi n)
+  (* 4.0
+     (product
+      (lambda (i) (/ (* (inc i) (- i 1)) (square i)))
+      3.0
+      (lambda (x) (+ x 2))
+      n)))
+
+(square (/ (inc 3.0) 3.0))
+(get-pi 1000000)
+
+;; 1.32
+(define (accumulate combiner null-value term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (combiner (term a) result))))
+  (iter a null-value))
+
+(accumulate + 0 id 1 inc 100) ;; 5050
+(accumulate * 1 id 1 inc 5) ;; 120
+
+;; 1.33
+
+(define (filtered-accumulate filter-fun combiner null-value term a next b)
+  (define (iter a result)
+    (cond ((> a b) result)
+          ((filter-fun (term a)) (iter (next a) (combiner (term a) result)))
+          (else (iter (next a) result))))
+  (iter a null-value))
+
+(filtered-accumulate (lambda (x) #t) + 0 id 1 inc 100)
+(filtered-accumulate prime-naive? + 0 id 10 inc 20) ;; 11 + 13 + 17 + 19 = 60
+
+(define (quiz-2 n)
+  (filtered-accumulate (lambda (x) (= (gcd x n) 1))
+                       * 1 id 1 inc n))
+(= (quiz-2 10) (* 1 3 7 9)) ;; 1 * 3 * 7 * 9 = 189
