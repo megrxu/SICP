@@ -321,3 +321,185 @@
   (filtered-accumulate (lambda (x) (= (gcd x n) 1))
                        * 1 id 1 inc n))
 (= (quiz-2 10) (* 1 3 7 9)) ;; 1 * 3 * 7 * 9 = 189
+
+;; 1.3.3 aux functions
+
+(define (search f neg-point pos-point)
+  (let [(midpoint (average neg-point pos-point))]
+    (if (close-enough? neg-point pos-point)
+        midpoint
+        (let [(test-value (f midpoint))]
+          (cond ((positive? test-value)
+                 (search f neg-point midpoint))
+                ((negative? test-value)
+                 (search f midpoint pos-point))
+                (else midpoint))))))
+
+(define (close-enough? x y)
+  (< (abs (- x y)) 0.001))
+
+(define (half-interval-method f a b)
+  (let [(a-value (f a))
+        (b-value (f b))]
+    (cond ((and (negative? a-value) (positive? b-value))
+           (search f a b))
+          ((and (negative? b-value) (positive? a-value))
+           (search f b a))
+          (else
+           (error "Values are not of opposite sign" a b)))))
+
+(half-interval-method sin 2.0 4.0)
+(half-interval-method (lambda (x) (- (* x x x) (* 2 x) 3)) 1.0 2.0)
+
+(define tolerance 0.0000001)
+
+(define (fixed-point f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (let [(next (f guess))]
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (try first-guess))
+
+(fixed-point cos 1.0)
+(fixed-point (lambda (y) (+ (sin y) (cos y))) 1.0)
+
+(define (sqrt-fix x)
+  (fixed-point (lambda (y) (average y (/ x y))) 1.0))
+(sqrt-fix 100)
+
+;; 1.35
+
+(fixed-point (lambda (x) (+ 1 (/ 1.0 x))) 1.0)
+
+;; 1.36
+
+(define (fixed-point-print f first-guess)
+  (define (close-enough? v1 v2)
+    (< (abs (- v1 v2)) tolerance))
+  (define (try guess)
+    (newline)
+    (display guess)
+    (let [(next (f guess))]
+      (if (close-enough? guess next)
+          next
+          (try next))))
+  (let [(res (try first-guess))]
+    (newline)
+    (display res)))
+(fixed-point-print (lambda (x) (/ (log 1000) (log x))) 2.0)
+(newline)
+(fixed-point-print (lambda (x) (average (/ (log 1000) (log x)) x)) 2.0)
+
+;; 1.37
+
+(define (cont-frac-rec n d k)
+  (define (component i)
+    (cond ((= i k) (/ (n i) (d i)))
+          (else (/ (n i) (+ (d i) (component (+ i 1))) ))))
+  (component 1))
+
+(define (cont-frac n d k)
+  (define (iter i res)
+    (cond ((= i 0) res)
+          (else (iter (- i 1) (/ (n i) (+ (d i) res))))) )
+  (iter k 0))
+
+(newline)
+(cont-frac-rec (lambda (i) 1.0)
+               (lambda (i) 1.0)
+               10000)
+(cont-frac (lambda (i) 1.0)
+           (lambda (i) 1.0)
+           10000)
+
+;; 1.38
+
+(+ 2
+   (cont-frac (lambda (i) 1.0)
+              (lambda (i)
+                (cond ((= (remainder i 3) 0) 1.0)
+                      ((= (remainder i 3) 1) 1.0)
+                      (else (* 2.0 (/ (inc i) 3)))))
+              1000000)) ;; e
+
+;; 1.39
+
+(define (tan-cf x k)
+  (cond ((= x 0) 0)
+        (else
+         (/ (cont-frac (lambda (i) (- (square x)))
+                       (lambda (i) (- (* 2 i) 1))
+                       k)
+            (- x)))))
+
+(tan-cf 0 100)
+(tan-cf (/ pi 4) 1000)
+
+
+;; 1.3.4 aux
+
+(define (average-damp f)
+  (lambda (x) (average x (f x))))
+
+(define (sqrt-ad x)
+  (fixed-point (average-damp (lambda (y) (/ x y))) 1.0))
+(sqrt-ad 100)
+
+
+(define (cube-root-ad x)
+  (fixed-point (average-damp (lambda (y) (/ x (square y)))) 1.0))
+(cube-root-ad 125)
+
+(define (deriv g)
+  (lambda (x)
+    (/ (- (g (+ x dx)) (g x)) dx)))
+(define dx 0.000001)
+
+((deriv cube) 5)
+
+(define (newton-transform g)
+  (lambda (x)
+    (- x (/ (g x) ((deriv g) x)))))
+(define (newton-method g guess)
+  (fixed-point (newton-transform g) guess))
+
+(define (sqrt-nm x)
+  (newton-method (lambda (y) (- (square y) x)) x))
+(sqrt-nm 100)
+
+;; 1.40
+
+(define (cubic a b c)
+  (lambda (x) (+ (* x x x) (* a (* x x)) (* b x) c)))
+(newton-method (cubic 1 -2 -30) 1)
+
+;; 1.41
+
+(define (double f)
+  (lambda (x) (f (f x))))
+((double inc) 2)
+
+;; 1.42
+
+(define (compose f g)
+  (lambda (x) (f (g x))))
+((compose square inc) 6)
+
+;; 1.43
+
+(define (repeated f times)
+  (cond ((< times 0) error "Error")
+        ((zero? times) id)
+        (else (compose (repeated f (- times 1)) f))))
+((repeated square 3) 2)
+
+;; 1.44
+(define (smooth f)
+  (lambda (x)
+    (/ (+ (f x) (f (+ x dx)) (f (- x dx)))
+       3.0)))
+(define n-smooth (lambda (n) (repeated smooth n)))
+(((n-smooth 10) square) 10)
