@@ -42,7 +42,7 @@
       guess
       (new-sqrt-iter (improve guess x) x)))
 
-;;(new-sqrt-iter 1.0 1) ;; halt 姝ｅ垯搴忓拰搴旂敤搴忕殑闂
+;;(new-sqrt-iter 1.0 1) ;; halt 正则序和应用序的问题
 
 ;; 1.7
 (sqrt 0.000001)
@@ -503,3 +503,37 @@
        3.0)))
 (define n-smooth (lambda (n) (repeated smooth n)))
 (((n-smooth 10) square) 10)
+
+;; 1.45
+
+(define (n-root n x)
+  (define (power n)
+    (lambda (x) (accumulate * 1 (lambda (y) x) 1 inc n)))
+  (fixed-point ((repeated average-damp (- n 1))
+                (lambda (y) (/ x ((power (- n 1)) y)))) 1.0))
+(n-root 7 128)
+
+;; 1.46
+
+(define (iterative-improve good-enough? improve)
+  (define (try guess)
+    (if (good-enough? guess)
+        guess
+        (try (improve guess))))
+  try)
+
+(define (fixed-point-ii f first-guess)
+  (define (good-enough? guess)
+    (< (abs (- guess (f guess))) tolerance))
+  ((iterative-improve good-enough? f) first-guess))
+(fixed-point-ii cos 1.0)
+
+(define (sqrt-ii x)
+  (define (good-enough? guess)
+    (< (abs (- (square guess) x)) 0.001))
+  (define (improve guess)
+    (average guess (/ x guess)))
+  ((iterative-improve good-enough? improve) 1.0))
+(sqrt-ii 100)
+
+;; chapter-01 finished
