@@ -178,3 +178,102 @@
                                      (/ 1.0 yl)))
         (error "Div failed."))))
 
+;; 2.11
+
+(define (mul-interval-cases x y)
+  (let ((yl (lower-bound y))
+        (xl (lower-bound x))
+        (yu (upper-bound y))
+        (xu (upper-bound x)))
+    (cond ((> xl 0) (cond ((> yl 0) (make-interval (* xl yl) (* xu yu)))
+                          ((< yu 0) (make-interval (* xl yu) (* xu yl)))
+                          (else (make-interval (* xu yl) (* xu yu)))))
+          ((< xu 0) (cond ((> yl 0) (make-interval (* xu yl) (* xl yu)))
+                          ((< yu 0) (make-interval (* yu xu) (* yl xl)))
+                          (else (make-interval (* xl yu) (* xl yl)))))
+          (else (cond ((> yl 0) (make-interval (* xl yu) (* xu yu)))
+                      ((< yu 0) (make-interval (* xu yl) (* xl yl)))
+                      (else (make-interval (min (* yu xl) (* yl xu)) (max (* yl xl) (* yu xu)))))))))
+
+;; 2.12
+
+(define (make-center-width c w)
+  (make-interval (- c w) (+ c w)))
+
+(define (center i)
+  (/ (+ (lower-bound i) (upper-bound i)) 2))
+
+(define (make-center-percent c p)
+  (make-center-width c (/ (* c p) 100.0)))
+
+(define (percent i)
+  (/ (- (upper-bound i) (lower-bound i)) (/ (center i) 50.0)))
+
+;; 2.17
+
+(define (last-pair l)
+  (if (null? (cdr l))
+      l
+      (last-pair (cdr l))))
+
+(last-pair (list 1 2 3 4))
+
+;; 2.18
+
+(define (reverse l)
+  (define (reverse-iter hd tl)
+    (if (null? tl)
+        hd
+        (reverse-iter (cons (car tl) hd) (cdr tl))))
+  (reverse-iter '() l))
+
+(reverse (list 1 2 3 4 5))
+
+;; 2.20
+
+(define (same-parity x . y)
+  (filter (lambda (i) (even? (- i x))) y))
+
+(same-parity 1 2 3 4 5 6 7 8 9)
+(same-parity 1 -3 -9 1 0 3 7)
+
+;; 2.21
+
+(define (square-list items)
+  (if (null? items)
+      '()
+      (cons (* (car items) (car items)) (square-list (cdr items)))))
+
+(define (square-list-prime items)
+  (map (lambda (x) (* x x)) items))
+
+(square-list (list 1 2 3 4))
+(square-list-prime (list 1 2 3 4))
+
+;; 2.23
+
+(define (for-each items f)
+  (if (null? items)
+      (void)
+      (begin (f (car items)) (for-each (cdr items) f))))
+
+(for-each '(1 2 3 4) (lambda (x) (displayln x)))
+
+;; 2.25
+
+(car (cdaddr '(1 3 (5 7) 9)))
+(caar '((7)))
+(cadar (cddadr (cadadr '(1 (2 (3 (4 5 (6 7))))))))
+
+
+;; 2.27
+
+(define (deep-reverse l)
+  (define (deep-reverse-iter hd tl)
+    (if (null? tl)
+        hd
+        (if (list? (car tl))
+            (deep-reverse-iter (cons (deep-reverse-iter '() (car tl)) hd)
+                               (cdr tl))
+            (deep-reverse-iter (cons (car tl) hd) (cdr tl)))))
+  (deep-reverse-iter '() l))
