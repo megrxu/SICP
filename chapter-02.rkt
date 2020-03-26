@@ -277,3 +277,185 @@
                                (cdr tl))
             (deep-reverse-iter (cons (car tl) hd) (cdr tl)))))
   (deep-reverse-iter '() l))
+
+;; 2.28
+
+(define (fringe l)
+  (define (fringe-iter leaves tl)
+    (if (null? tl)
+        leaves
+        (if (list? (car tl))
+            (fringe-iter (append (fringe-iter '() (car tl)) leaves) (cdr tl))
+            (fringe-iter (cons (car tl) leaves) (cdr tl)))))
+  (reverse (fringe-iter '() l)))
+
+(fringe '((1 2) (2 3) (3 (4 (4 5)))))
+
+;; 2.29
+
+(define (make-mobile left right)
+  (list left right))
+
+(define (make-branch length structure)
+  (list length structure))
+
+;; a)
+
+(define (left-branch mobile)
+  (car mobile))
+
+(define (right-branch mobile)
+  (cadr mobile))
+
+(define (branch-length branch)
+  (car branch))
+
+(define (branch-structure branch)
+  (cadr branch))
+
+;; b)
+
+(define (total-weight mobile)
+  (+ (branch-weight (left-branch mobile))
+     (branch-weight (right-branch mobile))))
+(define (branch-weight branch)
+    (if (list? (branch-structure branch))
+        (total-weight (branch-structure branch))
+        (branch-structure branch)))
+
+(define em
+  (make-mobile
+   (make-branch 2 16)
+   (make-branch 4 (make-mobile
+                   (make-branch 2 6)
+                   (make-branch 6 2)))))
+
+(total-weight em)
+
+;; c)
+
+(define (mobile-balance? mobile)
+  (let ([lb (left-branch mobile)]
+        [rb (right-branch mobile)])
+    (and (or (not (list? (branch-structure lb)))
+             (mobile-balance? (branch-structure lb)))
+         (or (not (list? (branch-structure rb)))
+             (mobile-balance? (branch-structure rb)))
+         (= (* (branch-length lb) (branch-weight lb))
+            (* (branch-length rb) (branch-weight rb))))))
+
+(mobile-balance? em)
+
+;; 2.30
+
+(define (square-tree tree)
+  (cond ((null? tree) '())
+        ((not (pair? tree)) (* tree tree))
+        (else (cons (square-tree (car tree))
+                    (square-tree (cdr tree))))))
+
+(define (square-tree-high tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (square-tree-high sub-tree)
+             (* sub-tree sub-tree)))
+       tree))
+
+(square-tree '(1 (2 (3 4) 5)))
+(square-tree-high '(1 (2 (3 4) 5)))
+
+;; 2.31
+
+(define (tree-map f tree)
+  (map (lambda (sub-tree)
+         (if (pair? sub-tree)
+             (tree-map f sub-tree)
+             (f sub-tree)))
+       tree))
+
+(tree-map (lambda (x) (* x x)) '(1 (2 (3 4) 5)))
+
+
+;; 2.32
+
+(define (subsets s)
+  (if (null? s)
+      (list '())
+      (let ((rest (subsets (cdr s))))
+        (append rest (map (lambda (tl) (cons (car s) tl)) rest)))))
+
+(subsets '(1 2 3))
+
+;; 2.33 aux
+
+(define (accumulate op initial sequence)
+  (if (null? sequence)
+      initial
+      (op (car sequence)
+          (accumulate op initial (cdr sequence)))))
+
+;; 2.33
+
+(define (map-2 p sequence)
+  (accumulate (lambda (x y) (cons (p x) y))
+              '()
+              sequence))
+(map-2 (lambda (x) (+ x 1)) '(1 2 3 4))
+
+(define (append-2 seq1 seq2)
+  (accumulate cons seq2 seq1))
+(append-2 '(1 2 3 4) '(5 6 7))
+
+(define (length-2 sequence)
+  (accumulate (lambda (_ y) (+ 1 y))
+              0
+              sequence))
+(length-2 '(1 2 3 4 5 6 7))
+
+;; 2.34
+
+(define (horner-eval x coeffs)
+  (accumulate (lambda (this-coeff higher-terms)
+                (+ (* x higher-terms) this-coeff))
+              0
+              coeffs))
+
+(horner-eval 2 (list 1 3 0 5 0 1))
+
+;; 2.35
+
+(define (count-leaves t)
+  (accumulate (lambda (x y)
+                (if (pair? x)
+                    (+ y (count-leaves x))
+                    (+ y 1)))
+              0
+              t))
+(count-leaves '(1 2 3 (2 4 (5 7) 8)))
+
+;; 2.36
+
+(define (accumulate-n op init seqs)
+  (if (null? (car seqs))
+      '()
+      (cons (accumulate op init (map car seqs))
+            (accumulate-n op init (map cdr seqs)))))
+(accumulate-n + 0 '((1 2 3) (4 5 6) (7 8 9) (10 11 12)))
+
+;; 2.37
+
+(define (dot-product v w)
+  (accumulate + 0 (map * v w)))
+
+(define (matrix-*-vector m v)
+  (map (lambda (x) (dot-product x v)) m))
+
+(define (transpose mat)
+  (accumulate-n cons '() mat))
+
+(define (matrix-*-matrix m n)
+  (let ([cols (transpose n)])
+    (map (lambda (x) (matrix-*-vector cols x)) m)))
+
+(matrix-*-matrix '((1 2 3) (4 5 6))
+                 '((7 8) (9 10) (11 12)))
