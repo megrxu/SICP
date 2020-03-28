@@ -1,6 +1,7 @@
 #lang racket
 
 ;; 2.12
+(require "2.7.rkt")
 
 (define (make-center-width c w)
   (make-interval (- c w) (+ c w)))

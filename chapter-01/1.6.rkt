@@ -2,6 +2,8 @@
 
 ;; 1.6
 
+(require "1.1.7-aux.rkt")
+
 (define (new-if predicate then-clause else-clause)
   (cond (predicate then-clause)
         (else else-clause)))

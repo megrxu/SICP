@@ -1,6 +1,8 @@
 #lang racket
 
 ;; 2.37
+(require "2.33-aux.rkt")
+(require "2.36.rkt")
 
 (define (dot-product v w)
   (accumulate + 0 (map * v w)))

@@ -1,6 +1,8 @@
 #lang racket
 
 ;; 1.36
+(require "1.3.3-aux.rkt")
+(require "1.1.7-aux.rkt")
 
 (define (fixed-point-print f first-guess)
   (define (close-enough? v1 v2)

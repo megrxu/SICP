@@ -1,6 +1,7 @@
 #lang racket
 
 ;; 2.33
+(require "2.33-aux.rkt")
 
 (define (map-2 p sequence)
   (accumulate (lambda (x y) (cons (p x) y))

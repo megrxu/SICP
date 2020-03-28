@@ -1,6 +1,8 @@
 #lang racket
 
 ;; 1.39
+(require "1.37.rkt")
+(require "1.1.7-aux.rkt")
 
 (define (tan-cf x k)
   (cond ((= x 0) 0)

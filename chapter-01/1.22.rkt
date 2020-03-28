@@ -2,6 +2,9 @@
 
 ;; 1.22
 
+(require "1.21.rkt" )
+(require "1.1.7-aux.rkt" )
+
 (define (prime-naive? n)
   (equal? n (smallest-divisor n)))
 
@@ -35,3 +38,4 @@
 
 (test-prime (+ 1000000000 1) prime-fast?)
 
+(provide test-prime prime-naive?)

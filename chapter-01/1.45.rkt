@@ -1,6 +1,10 @@
 #lang racket
 
 ;; 1.45
+(require "1.32.rkt")
+(require "1.3.3-aux.rkt")
+(require "1.3.4-aux.rkt")
+(require "1.43.rkt")
 
 (define (n-root n x)
   (define (power n)

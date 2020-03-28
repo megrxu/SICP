@@ -37,4 +37,4 @@
 (define s0 (make-segment p1 p2))
 (print-point (midpoint-segment s0))
 
-
+(provide make-point)

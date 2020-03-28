@@ -1,6 +1,8 @@
 #lang racket
 
 ;; 2.3
+(require "2.2.rkt")
+
 (define (make-rect point rect-length rect-width)
   (cons point (cons rect-length rect-width)))
 (define (rect-length rect)

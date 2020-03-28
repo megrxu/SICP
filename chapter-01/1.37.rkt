@@ -22,3 +22,4 @@
            (lambda (i) 1.0)
            10000)
 
+(provide cont-frac)

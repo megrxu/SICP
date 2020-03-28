@@ -2,6 +2,8 @@
 
 ;; 1.3.3 aux
 
+(require "1.1.7-aux.rkt")
+
 (define (search f neg-point pos-point)
   (let [(midpoint (average neg-point pos-point))]
     (if (close-enough? neg-point pos-point)
@@ -48,3 +50,4 @@
   (fixed-point (lambda (y) (average y (/ x y))) 1.0))
 (sqrt-fix 100)
 
+(provide fixed-point tolerance)

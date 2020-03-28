@@ -1,6 +1,8 @@
 #lang racket
 
 ;; 1.7
+(require "1.1.7-aux.rkt")
+
 (sqrt 0.000001)
 
 (define (good-enough-diff? guess x)

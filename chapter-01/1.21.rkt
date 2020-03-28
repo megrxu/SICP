@@ -2,6 +2,8 @@
 
 ;; 1.21
 
+(require "1.1.7-aux.rkt")
+
 (define (smallest-divisor n)
   (define (find-divisor n test-divisor)
     (cond ((> (square test-divisor) n) n)
@@ -15,3 +17,4 @@
 (smallest-divisor 1999)
 (smallest-divisor 19999)
 
+(provide smallest-divisor)

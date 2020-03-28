@@ -2,6 +2,10 @@
 
 ;; 1.23
 
+(require "1.21.rkt" )
+(require "1.22.rkt" )
+(require "1.1.7-aux.rkt" )
+
 (define (next-divisor n)
   (cond ((= n 2) 3)
         (else (+ 2 n))))

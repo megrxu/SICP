@@ -1,6 +1,7 @@
 #lang racket
 
 ;; 2.35
+(require "2.33-aux.rkt")
 
 (define (count-leaves t)
   (accumulate (lambda (x y)

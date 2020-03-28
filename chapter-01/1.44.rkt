@@ -1,6 +1,9 @@
 #lang racket
 
 ;; 1.44
+(require "1.3.4-aux.rkt")
+(require "1.43.rkt")
+(require "1.1.7-aux.rkt")
 
 (define (smooth f)
   (lambda (x)

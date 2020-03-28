@@ -1,6 +1,8 @@
 #lang racket
 
 ;; 1.33
+(require "1.32.rkt" )
+(require "1.22.rkt" )
 
 (define (filtered-accumulate filter-fun combiner null-value term a next b)
   (define (iter a result)

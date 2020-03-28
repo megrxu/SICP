@@ -1,6 +1,9 @@
 #lang racket
 
 ;; 1.31
+(require "1.30.rkt" )
+(require "1.29-aux.rkt" )
+(require "1.1.7-aux.rkt" )
 
 (define (product term a next b)
   (define (iter a result)

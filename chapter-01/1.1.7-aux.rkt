@@ -22,3 +22,4 @@
 
 (sqrt 100)
 
+(provide average good-enough? improve square)

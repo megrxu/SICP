@@ -1,6 +1,7 @@
 #lang racket
 
 ;; 1.30
+(require "1.29-aux.rkt" )
 
 (define (sum-iter term a next b)
   (define (iter a result)
@@ -12,3 +13,4 @@
 (define (id x) x)
 (sum-iter id 1 inc 10)
 
+(provide id)

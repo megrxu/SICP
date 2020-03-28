@@ -1,6 +1,9 @@
 #lang racket
 
 ;; 1.8
+
+(require "1.1.7-aux.rkt")
+
 (define (cube-root-iter guess x)
   (if (good-enough-cr? guess x)
       guess

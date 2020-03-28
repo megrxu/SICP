@@ -17,3 +17,4 @@
                       ((< yu 0) (make-interval (* xu yl) (* xl yl)))
                       (else (make-interval (min (* yu xl) (* yl xu)) (max (* yl xl) (* yu xu)))))))))
 
+(provide mul-interval-cases)

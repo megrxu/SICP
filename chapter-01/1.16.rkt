@@ -2,6 +2,8 @@
 
 ;; 1.16
 
+(require "1.1.7-aux.rkt")
+
 (define (expt b n)
   (define (iter a b n)
     (cond ((= n 0) 1)

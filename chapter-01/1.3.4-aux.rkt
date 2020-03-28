@@ -2,6 +2,10 @@
 
 ;; 1.3.4 aux
 
+(require "1.1.7-aux.rkt")
+(require "1.3.3-aux.rkt")
+(require "1.29-aux.rkt")
+
 (define (average-damp f)
   (lambda (x) (average x (f x))))
 
@@ -31,3 +35,4 @@
   (newton-method (lambda (y) (- (square y) x)) x))
 (sqrt-nm 100)
 
+(provide newton-method dx average-damp)

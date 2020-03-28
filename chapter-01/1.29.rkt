@@ -1,6 +1,8 @@
 #lang racket
 
 ;; 1.29
+(require "1.1.7-aux.rkt" )
+(require "1.29-aux.rkt" )
 
 (define (integral-simpson f a b n)
   (let ((h (/ (- b a) n)))

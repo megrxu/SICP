@@ -13,4 +13,4 @@
   (define (plus x y)
     (lambda (f) (lambda (x) ((x f) ((y f) x)))))
   (display "Church"))
-
+(playground-2-6)

@@ -1,6 +1,7 @@
 #lang racket
 
 ;; 1.29 pre
+(require "1.1.7-aux.rkt" )
 
 (define (sum term a next b)
   (if (> a b)
@@ -32,3 +33,4 @@
 (integral cube 0 1 0.01)
 (integral cube 0 1 0.001)
 
+(provide sum cube inc)

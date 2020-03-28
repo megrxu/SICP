@@ -2,6 +2,9 @@
 
 ;; 1.38
 
+(require "1.37.rkt")
+(require "1.29-aux.rkt")
+
 (+ 2
    (cont-frac (lambda (i) 1.0)
               (lambda (i)
