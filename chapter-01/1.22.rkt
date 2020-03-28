@@ -38,4 +38,4 @@
 
 (test-prime (+ 1000000000 1) prime-fast?)
 
-(provide test-prime prime-naive?)
+(provide test-prime prime-naive? prime-fast?)
