@@ -12,3 +12,4 @@
         (error "Div failed."))))
 
 (provide div-interval)
+(div 1 2)
