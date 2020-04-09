@@ -4,7 +4,7 @@
 
 (define (assoc key records)
   (cond [(null? records) false]
-     [(equal? key (caar records) (car records))]
+     [(equal? key (caar records)) (car records)]
      [else (assoc key (cdr records))]))
 
 (define (make-table)
