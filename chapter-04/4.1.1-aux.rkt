@@ -1,7 +1,8 @@
 #lang racket
 
+(require (only-in racket [apply apply-in-underlying-scheme]))
+
 (define (eval exp env)
-  (displayln exp)
   (cond [(self-evaluating? exp) exp]
         [(variable? exp) (lookup-variable-value exp env)]
         [(quoted? exp) (text-of-quotation exp)]
@@ -20,8 +21,6 @@
                 (list-of-values (operands exp) env))]
         [else (error "Unknown expression type -- EVAL" exp)]))
 
-(define (apply-in-underlying-scheme op xs)
-  (apply op xs))
 (define (apply procedure arguments)
   (cond [(primitive-procedure? procedure)
          (apply-primitive-procedure procedure arguments)]
@@ -30,7 +29,7 @@
           (procedure-body procedure)
           (extend-environment
            (procedure-parameters procedure)
-           arguments
+           (list->mlist arguments)
            (procedure-environment procedure)))]
         [else (error "Unknown procedure type -- APPLY" procedure)]))
 
@@ -58,8 +57,9 @@
 
 (define (eval-definition exp env)
   (define-variable! (definition-variable exp)
-    (eval (definition-value exp env)
-          env))
+    (eval (definition-value exp)
+          env)
+    env)
   'ok)
 
 ;; 4.1.2
@@ -76,9 +76,11 @@
 (define (text-of-quotation exp) (cadr exp))
 
 (define (tagged-list? exp tag)
-  (if (pair? exp)
-      (eq? (car exp) tag)
-      false))
+  (if (mpair? exp)
+      (eq? (mcar exp) tag)
+      (if (pair? exp)
+          (eq? (car exp) tag)
+          false)))
 
 (define (assignment? exp)
   (tagged-list? exp 'set))
@@ -153,6 +155,12 @@
                      (sequence->exp (cond-actions first))
                      (expand-clauses rest))))))
 
+;; list -> mlist
+(define (list->mlist l)
+  (foldr mcons '() l))
+(define (mlist->list ml)
+  (foldr cons '() ml))
+
 ;; 4.1.3
 
 (define (true? x)
@@ -164,7 +172,7 @@
   (list 'procedure parameters body env))
 (define (compound-procedure? p)
   (tagged-list? p 'procedure))
-(define (procedure-parameters p) (cadr p))
+(define (procedure-parameters p) (list->mlist (cadr p)))
 (define (procedure-body p) (caddr p))
 (define (procedure-environment p) (cadddr p))
 
@@ -198,7 +206,7 @@
         (let ([frame (first-frame env)])
           (scan (frame-variables frame)
                 (frame-values frame)))))
-  (env-loop))
+  (env-loop env))
 
 (define (set-variable-value! var val env)
   (define (env-loop env)
@@ -212,7 +220,7 @@
         (let ([frame (first-frame env)])
           (scan (frame-variables frame)
                 (frame-values frame)))))
-  (env-loop))
+  (env-loop env))
 
 (define (define-variable! var val env)
   (let ([frame (first-frame env)])
@@ -238,7 +246,7 @@
 
 (define (primitive-procedure? proc)
   (tagged-list? proc 'primitive))
-(define (primitive-implementation proc) (cadr proc))
+(define (primitive-implementation proc) ((compose mcar mcdr) proc))
 
 (define (mlist . xs)
   (foldl mcons null xs))
@@ -255,15 +263,16 @@
       (+ 1 (length (mcdr l)))))
 
 (define (primitive-procedure-names)
-  (foldl (lambda (x y) (mcons (car x) y)) null primitive-procedures))
+  (foldl mcons null (map (lambda (proc)
+                           (car proc))
+                         primitive-procedures)))
 (define (primitive-procedure-objects)
   (foldl mcons null (map (lambda (proc)
-                           (mlist 'primitive ((compose car cdr) proc)))
+                           (mlist (cadr proc) 'primitive))
                          primitive-procedures)))
 
 (define (apply-primitive-procedure proc args)
-  (apply-in-underlying-scheme
-   (primitive-implementation proc) args))
+  (apply-in-underlying-scheme (primitive-implementation proc) args))
 
 (define input-prompt ";;; M-Eval input:")
 (define output-prompt ";;; M-Eval value:")
