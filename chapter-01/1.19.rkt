@@ -1,18 +1,24 @@
-#lang racket
+#lang typed/racket
 
 ;; 1.19
-
+(: fast-fib (-> Integer Integer))
 (define (fast-fib n)
-  (define (once ab)
-    (cons (+ (car ab) (cdr ab)) (car ab)))
-  (define (twice ab)
-    (once (once ab)))
-  (define (iter ab n)
-    (cond ((= n 0) (cdr ab))
-          ((= n 1) (car ab))
-          ((even? n) (iter (twice ab) (/ n 2)))
-          (else (iter (once (twice ab)) (quotient n 2)))))
-  (iter '(1 . 0) n))
-
-(fast-fib 1e100) ;; very fast
-
+  (: square (-> Integer Integer))
+  (define (square x)
+    (* x x))
+  (: fib-iter (-> Integer Integer Integer Integer Integer Integer))
+  (define (fib-iter a b p q i)
+   (cond ((= i 0) b)
+         ((even? i)
+          (fib-iter a
+                    b
+                    (+ (square p) (square q))
+                    (+ (* 2 p q) (square q))
+                    (quotient i 2)))
+         (else (fib-iter (+ (* b q) (* a q) (* a p))
+                         (+ (* b p) (* a q))
+                         p
+                         q
+                         (- i 1)))))
+  (fib-iter 1 0 0 1 n))
+(fast-fib (exact-round 1000)) ;; very fast
