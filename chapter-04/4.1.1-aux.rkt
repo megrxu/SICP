@@ -255,7 +255,11 @@
   (list (list 'car car)
         (list 'cdr cdr)
         (list 'cons cons)
-        (list 'null? null?)))
+        (list 'null? null?)
+        (list '+ +)
+        (list '- -)
+        (list '* *)
+        (list '/ /)))
 
 (define (length l)
   (if (null? l)
@@ -303,4 +307,7 @@
 ;; Examples
 
 (define the-global-environment (setup-environment))
-(driver-loop)
+;; (driver-loop)
+
+
+(provide tagged-list?)
